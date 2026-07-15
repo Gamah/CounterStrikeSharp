@@ -686,22 +686,22 @@ namespace CounterStrikeSharp.API.Core
             if (_disposed) return;
             if (!disposing) return;
 
-            foreach (var subscriber in Handlers.Values)
+            foreach (var subscriber in Handlers.Values.ToList())
             {
                 subscriber.Dispose();
             }
 
-            foreach (var subscriber in CommandListeners.Values)
+            foreach (var subscriber in CommandListeners.Values.ToList())
             {
                 subscriber.Dispose();
             }
 
-            foreach (var subscriber in Listeners.Values)
+            foreach (var subscriber in Listeners.Values.ToList())
             {
                 subscriber.Dispose();
             }
 
-            foreach (var subscriber in EntityOutputHooks.Values)
+            foreach (var subscriber in EntityOutputHooks.Values.ToList())
             {
                 subscriber.Dispose();
             }
@@ -713,12 +713,12 @@ namespace CounterStrikeSharp.API.Core
                 convar.Delete();
             }
 
-            foreach (var definition in CommandDefinitions)
+            foreach (var definition in CommandDefinitions.ToList())
             {
                 CommandManager.RemoveCommand(definition);
             }
 
-            foreach (var timer in Timers)
+            foreach (var timer in Timers.ToList())
             {
                 timer.Kill();
             }
