@@ -30,6 +30,7 @@
 #include "core/log.h"
 #include "core/function.h"
 #include "core/recipientfilters.h"
+#include "core/UserMessage.h"
 #include "core/managers/player_manager.h"
 #include "core/managers/server_manager.h"
 #include "core/tick_scheduler.h"
@@ -191,8 +192,8 @@ void ClientPrint(ScriptContext& scriptContext)
     auto hudDestination = scriptContext.GetArgument<int>(1);
     auto message = scriptContext.GetArgument<const char*>(2);
 
-    INetworkMessageInternal* pNetMsg = globals::networkMessages->FindNetworkMessagePartial("TextMsg");
-    auto data = pNetMsg->AllocateMessage()->ToPB<CUserMessageTextMsg>();
+    INetworkMessageInternal* pNetMsg = netmessages::FindPartial("TextMsg");
+    auto data = netmessages::Allocate(pNetMsg)->ToPB<CUserMessageTextMsg>();
 
     data->set_dest(hudDestination);
     data->add_param(message);

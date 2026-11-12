@@ -79,6 +79,17 @@ class Message;
 namespace counterstrikesharp {
 class ScriptCallback;
 
+// Since CS2 1.41.9.7 (11/11/2026) the engine has no INetworkMessageInternal: the pointer its lookups return and
+// PostEventAbstract carries is a plain struct with no vtable, and INetworkMessages lost the slots the SDK declares
+// for it. The SDK still has the old layout, so that pointer is only ever read through these. Slots are in gamedata.
+namespace netmessages {
+INetworkMessageInternal* FindPartial(const char* partialName);
+INetworkMessageInternal* FindById(int messageId);
+int GetId(INetworkMessageInternal* info);
+std::string GetName(INetworkMessageInternal* info);
+CNetMessage* Allocate(INetworkMessageInternal* info);
+} // namespace netmessages
+
 static inline size_t SafeStrcpy(char* dest, size_t maxlength, const char* src)
 {
     if (!dest || !maxlength) return 0;
@@ -104,20 +115,20 @@ class UserMessage
     UserMessage(std::string msgName)
     {
         manuallyAllocated = true;
-        this->msgSerializable = globals::networkMessages->FindNetworkMessagePartial(msgName.c_str());
+        this->msgSerializable = netmessages::FindPartial(msgName.c_str());
         if (!this->msgSerializable) return;
 
-        this->msg = this->msgSerializable->AllocateMessage()->ToPB<protobuf::Message>();
+        this->msg = netmessages::Allocate(this->msgSerializable)->ToPB<protobuf::Message>();
         this->recipientMask = new uint64(0);
     }
 
     UserMessage(int msgId)
     {
         manuallyAllocated = true;
-        this->msgSerializable = globals::networkMessages->FindNetworkMessageById(msgId);
+        this->msgSerializable = netmessages::FindById(msgId);
         if (!this->msgSerializable) return;
 
-        this->msg = this->msgSerializable->AllocateMessage()->ToPB<protobuf::Message>();
+        this->msg = netmessages::Allocate(this->msgSerializable)->ToPB<protobuf::Message>();
         this->recipientMask = new uint64(0);
     }
 
