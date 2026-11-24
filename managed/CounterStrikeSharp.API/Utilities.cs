@@ -186,7 +186,19 @@ namespace CounterStrikeSharp.API
         {
             List<CCSPlayerController> players = new();
 
-            for (int i = 0; i < Server.MaxPlayers; i++)
+            // Before the engine has a game server there are no global vars and MaxPlayers throws; there is
+            // nobody to list either, so the answer is an empty room rather than an exception.
+            int maxPlayers;
+            try
+            {
+                maxPlayers = Server.MaxPlayers;
+            }
+            catch (NativeException)
+            {
+                return players;
+            }
+
+            for (int i = 0; i < maxPlayers; i++)
             {
                 var controller = GetPlayerFromSlot(i);
 
